@@ -1,4 +1,4 @@
-from logger.model import Logger
+from model import Logger
 
 logger_1 = Logger.get_instance()
 logger_2 = Logger.get_instance()
