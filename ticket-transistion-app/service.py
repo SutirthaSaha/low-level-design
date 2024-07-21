@@ -2,6 +2,7 @@ from model import User, Ticket, Review, Analysis, Done
 from enums import TicketState
 import threading
 
+
 class TicketService:
 
     def __init__(self):
