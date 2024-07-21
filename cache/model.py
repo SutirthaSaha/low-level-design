@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+
+from util import DoublyLinkedList
 from enums import CacheType
 from collections import deque
 
@@ -29,22 +31,23 @@ class Cache(ABC):
 class LRUCache(Cache):
     def __init__(self, capacity):
         super().__init__(capacity)
-        self.frequency = []
+        self.frequency = DoublyLinkedList()
 
     def get(self, key) -> str:
-        index = self.frequency.index(key)
-        self.frequency.pop(index)
-        self.frequency.append(key)
-        return self.storage.get(key)
+        if key not in self.storage:
+            raise Exception("Key doesn't exist")
+        node = self.frequency.remove_val(key)
+        self.frequency.add_node(node)
+        return self.storage[key]
 
     def add(self, key, value) -> bool:
         if self.is_storage_full():
             self.remove()
         self.storage[key] = value
-        self.frequency.append(key)
+        self.frequency.add(key)
 
     def remove(self) -> bool:
-        key = self.frequency.pop(0)
+        key = self.frequency.remove_first().val
         self.storage.pop(key)
         return True
 
