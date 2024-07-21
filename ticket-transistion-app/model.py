@@ -44,7 +44,7 @@ class Analysis(State):
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
-            cls._instance = cls()
+            cls()
         return cls._instance
 
     def __init__(self):
@@ -73,7 +73,7 @@ class Review(State):
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
-            cls._instance = cls()
+            cls()
         return cls._instance
 
     def __init__(self):
@@ -103,7 +103,7 @@ class Done(State):
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
-            cls._instance = cls()
+            cls()
         return cls._instance
 
     def __init__(self):
