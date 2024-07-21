@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class TicketState(Enum):
-    ANALYSIS = "ANALYSIS"
-    REVIEW = "REVIEW"
-    DONE = "DONE"
+    ANALYSIS = "Analysis"
+    REVIEW = "Review"
+    DONE = "Done"

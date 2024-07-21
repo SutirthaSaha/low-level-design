@@ -1,33 +1,37 @@
-from model import User, Ticket
+from model import User, Ticket, Review, Analysis, Done
 from enums import TicketState
+import threading
 
 class TicketService:
+
+    def __init__(self):
+        self.lock = threading.Lock()
+
     def create_ticket(self, desc: str, user: User):
-        return Ticket(desc, user, TicketState.ANALYSIS)
+        return Ticket(desc, user, Analysis())
+
+    def start_analysis(self, ticket: Ticket):
+        with self.lock:
+            is_feasible = ticket.get_state().start_analysis(ticket)
+            if is_feasible:
+                ticket.set_state(Analysis())
+
+    def start_review(self, ticket: Ticket):
+        with self.lock:
+            is_feasible = ticket.get_state().start_review(ticket)
+            if is_feasible:
+                ticket.set_state(Review())
+
+    def mark_done(self, ticket: Ticket):
+        with self.lock:
+            is_feasible = ticket.get_state().mark_done(ticket)
+            if is_feasible:
+                ticket.set_state(Done())
 
     def change_ticket_state(self, ticket: Ticket, ticket_state: TicketState):
-        current_state = ticket.get_ticket_state()
-        if current_state == TicketState.ANALYSIS:
-            if ticket_state == TicketState.REVIEW:
-                print(f"{ticket.get_description()} moved from {current_state.name} to {ticket_state.name}")
-            elif ticket_state == TicketState.DONE:
-                print(f"{ticket.get_description()} moved from {current_state.name} to {ticket_state.name}. "
-                      f"This has to move to Review first.")
-                raise Exception("Invalid Transition")
-            else:
-                print("Ticket in the same state")
-        elif current_state == TicketState.REVIEW:
-            if ticket_state == TicketState.ANALYSIS:
-                print(f"{ticket.get_description()} moved from {current_state.name} to {ticket_state.name}. Look into it.")
-            elif ticket_state == TicketState.DONE:
-                print(f"{ticket.get_description()} moved from {current_state.name} to {ticket_state.name}. Congratulations!")
-            else:
-                print("Ticket in the same state")
+        if ticket_state == TicketState.ANALYSIS:
+            self.start_analysis(ticket)
+        elif ticket_state == TicketState.REVIEW:
+            self.start_review(ticket)
         else:
-            if ticket_state == TicketState.REVIEW:
-                print(f"{ticket.get_description()} moved from {current_state.name} to {ticket_state.name}. Reopened the ticket.")
-            elif ticket_state == TicketState.DONE:
-                print(f"{ticket.get_description()} moved from {current_state.name} to {ticket_state.name}. Reopened the ticket.")
-            else:
-                print("Ticket in the same state")
-        ticket.set_ticket_state(ticket_state)
+            self.mark_done(ticket)
