@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from util import DoublyLinkedList, ListNode
-from enums import CacheType
+from enums import EvictionPolicyType
 
 
 class EvictionPolicy(ABC):
@@ -51,26 +51,20 @@ class FirstInFirstOut(EvictionPolicy):
         return node.val
 
 
-class Cache:
-    def __init__(self, capacity, eviction_policy: EvictionPolicy):
+class Storage:
+    def __init__(self, capacity):
         self.storage = dict()
         self.capacity = capacity
-        self.eviction_policy = eviction_policy
 
     def get(self, key) -> str:
         if key not in self.storage:
             raise Exception("Key doesn't exist")
-        self.eviction_policy.access_key(key)
         return self.storage[key]
 
     def add(self, key, value) -> bool:
-        if self.is_storage_full():
-            self.remove()
         self.storage[key] = value
-        self.eviction_policy.access_key(key)
 
-    def remove(self) -> bool:
-        key = self.eviction_policy.evict_key()
+    def remove(self, key) -> bool:
         self.storage.pop(key)
 
     def is_storage_full(self) -> bool:
@@ -79,13 +73,29 @@ class Cache:
         return False
 
 
-class CacheFactory:
-
-    def __init__(self, capacity: int = 5):
+class Cache:
+    def __init__(self, capacity, eviction_policy: str):
         self.capacity = capacity
+        self.storage = Storage(capacity)
+        self.eviction_policy = EvictionPolicyFactory.get_eviction_policy(eviction_policy)
 
-    def get_cache(self, cache_type: str):
-        if cache_type == CacheType.LRU:
-            return Cache(self.capacity, LeastRecentlyUsed())
-        elif cache_type == CacheType.FIFO:
-            return Cache(self.capacity, FirstInFirstOut())
+    def get(self, key) -> str:
+        value = self.storage.get(key)
+        self.eviction_policy.access_key(key)
+        return value
+
+    def put(self, key, value) -> bool:
+        if self.storage.is_storage_full():
+            self.storage.remove(self.eviction_policy.evict_key())
+        self.storage.add(key, value)
+        self.eviction_policy.access_key(key)
+
+
+class EvictionPolicyFactory:
+
+    @classmethod
+    def get_eviction_policy(cls, eviction_policy_type: str):
+        if eviction_policy_type == EvictionPolicyType.LRU:
+            return LeastRecentlyUsed()
+        elif eviction_policy_type == EvictionPolicyType.FIFO:
+            return FirstInFirstOut()
