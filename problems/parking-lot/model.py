@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from random import randint
 from typing import List, Dict
-from enums import ParkingSpotType, VehicleType
+from enums import ParkingSpotType, VehicleType, ParkingEventType
 from exceptions import SpotNotFoundException
 
 
@@ -57,7 +57,15 @@ class DisplayBoard:
         if DisplayBoard._instance is not None:
             raise Exception('The instance already exists')
         else:
+            self.map = {
+                ParkingSpotType.MINI: 0,
+                ParkingSpotType.COMPACT: 0,
+                ParkingSpotType.LARGE: 0,
+            }
             DisplayBoard._instance = self
+
+    def change(self, parking_spot_type: ParkingSpotType, change: int):
+        self.parking_lot.display_board.map[parking_spot_type] += change
 
 
 class ParkingLot:
@@ -152,3 +160,10 @@ class FarthestFirstParkingStrategy(ParkingStrategy):
         if len(free_parking_spots) == 0:
             raise SpotNotFoundException('There are no free spots available')
         return free_parking_spots[-1]
+
+
+class ParkingEvent:
+    def __init__(self, parking_event_type: ParkingEventType, parking_lot: ParkingLot, vehicle: Vehicle):
+        self.parking_event_type = parking_event_type
+        self.parking_lot = parking_lot
+        self.vehicle = vehicle

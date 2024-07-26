@@ -11,3 +11,8 @@ class VehicleType(Enum):
     BIKE = 'BIKE'
     CAR = 'CAR'
     TRUCK = 'TRUCK'
+
+
+class ParkingEventType(Enum):
+    ENTRY = "Entry"
+    EXIT = "Exit"
