@@ -18,6 +18,7 @@ class ElevatorInput(ABC):
     def __init__(self):
         pass
 
+
 class Card(ElevatorInput):
     def __init__(self):
         pass
@@ -64,6 +65,7 @@ class Elevator(ABC):
     @abstractmethod
     def accept(self, elevator_input: ElevatorInput):
         pass
+
 
 class ActionButtonStrategy(ABC):
 
